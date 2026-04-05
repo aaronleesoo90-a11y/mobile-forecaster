@@ -2,71 +2,274 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="theme-color" content="#0a0a0f">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#050508">
 <title>Market Forecaster</title>
 <style>
+:root{
+  --bg:#050508;
+  --bg1:#0a0a12;
+  --bg2:#0f0f1a;
+  --bg3:#141420;
+  --border:#1e1e2e;
+  --border2:#252535;
+  --accent:#00e5b0;
+  --accent2:#7b61ff;
+  --red:#ff3a5c;
+  --yellow:#f5c518;
+  --text:#e8e8f0;
+  --text2:#8888aa;
+  --text3:#444466;
+}
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-body{background:#0a0a0f;color:#e0e0e0;font-family:monospace;min-height:100vh}
-.header{background:#0d0d18;border-bottom:1px solid #1a1a2e;padding:12px 16px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:100}
-.header h1{color:#00d4aa;font-size:14px;letter-spacing:2px}
-.live{width:8px;height:8px;background:#00d4aa;border-radius:50%;animation:pulse 2s infinite}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
-.nav{display:flex;overflow-x:auto;background:#0d0d18;border-bottom:1px solid #1a1a2e;padding:0 8px}
+html,body{background:var(--bg);color:var(--text);font-family:'SF Mono',monospace;height:100%;overflow-x:hidden}
+/* HEADER */
+.hdr{
+  background:var(--bg1);
+  border-bottom:1px solid var(--border);
+  padding:14px 16px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  position:sticky;top:0;z-index:200;
+  backdrop-filter:blur(10px);
+}
+.hdr-left{display:flex;align-items:center;gap:10px}
+.hdr-logo{color:var(--accent);font-size:20px}
+.hdr-title{font-size:13px;font-weight:700;letter-spacing:3px;color:var(--text)}
+.hdr-right{display:flex;align-items:center;gap:10px}
+.live-badge{
+  display:flex;align-items:center;gap:5px;
+  background:rgba(0,229,176,0.08);
+  border:1px solid rgba(0,229,176,0.2);
+  border-radius:20px;padding:3px 8px;
+  font-size:10px;color:var(--accent);letter-spacing:1px;
+}
+.live-dot{width:6px;height:6px;background:var(--accent);border-radius:50%;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.4;transform:scale(0.8)}}
+.time-display{font-size:11px;color:var(--text3);letter-spacing:1px}
+/* NAV */
+.nav{
+  display:flex;overflow-x:auto;
+  background:var(--bg1);
+  border-bottom:1px solid var(--border);
+  padding:0 4px;
+  position:sticky;top:53px;z-index:199;
+}
 .nav::-webkit-scrollbar{display:none}
-.nav-btn{background:none;border:none;color:#555;padding:12px 14px;font-family:monospace;font-size:11px;letter-spacing:1px;cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap}
-.nav-btn.active{color:#00d4aa;border-bottom-color:#00d4aa}
-.content{padding:12px}
+.nav-btn{
+  background:none;border:none;color:var(--text3);
+  padding:13px 16px;font-family:inherit;
+  font-size:10px;letter-spacing:2px;cursor:pointer;
+  border-bottom:2px solid transparent;white-space:nowrap;
+  transition:all 0.2s;
+}
+.nav-btn.active{color:var(--accent);border-bottom-color:var(--accent)}
+.nav-btn:hover{color:var(--text2)}
+/* CONTENT */
+.content{padding:12px;max-width:600px;margin:0 auto;padding-bottom:40px}
 .tab{display:none}.tab.active{display:block}
-.card{background:#0d0d18;border:1px solid #1a1a2e;border-radius:8px;padding:12px;margin-bottom:10px}
-.card-title{font-size:10px;color:#555;letter-spacing:2px;text-transform:uppercase;margin-bottom:10px}
-.row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #111}
+/* CARDS */
+.card{
+  background:var(--bg2);
+  border:1px solid var(--border);
+  border-radius:12px;padding:14px;
+  margin-bottom:10px;
+  position:relative;overflow:hidden;
+}
+.card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,var(--border2),transparent);
+}
+.card-title{
+  font-size:9px;color:var(--text3);
+  letter-spacing:3px;text-transform:uppercase;
+  margin-bottom:12px;display:flex;align-items:center;gap:6px;
+}
+.card-title::before{content:'';width:3px;height:3px;background:var(--accent);border-radius:50%}
+/* ROWS */
+.row{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:10px 0;border-bottom:1px solid rgba(30,30,46,0.8);
+  transition:background 0.2s;
+}
 .row:last-child{border-bottom:none}
-.sym{font-weight:bold;font-size:13px;color:#fff}
-.price-val{font-size:13px;color:#fff}
-.up{color:#00d4aa}.down{color:#ff4466}
-.badge{padding:3px 8px;border-radius:4px;font-size:10px;font-weight:bold;letter-spacing:1px}
-.bullish{background:#003322;color:#00d4aa}
-.weak_bullish{background:#002211;color:#00aa77}
-.bearish{background:#330011;color:#ff4466}
-.weak_bearish{background:#220011;color:#aa4455}
-.neutral{background:#1a1a1a;color:#888}
-.insufficient_data{background:#111;color:#444}
-.btn{width:100%;background:#0d0d18;border:1px solid #1a1a2e;color:#00d4aa;padding:10px;border-radius:6px;font-family:monospace;font-size:12px;cursor:pointer;margin-bottom:8px;letter-spacing:1px}
-.btn.active{background:#00d4aa;color:#000;border-color:#00d4aa}
-.btn-row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-input{width:100%;background:#0d0d18;border:1px solid #1a1a2e;color:#fff;padding:10px;border-radius:6px;font-family:monospace;font-size:13px;margin-bottom:8px;outline:none}
-input:focus{border-color:#00d4aa}
-.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
-.stat{background:#111;border-radius:6px;padding:10px}
-.stat-label{font-size:9px;color:#555;letter-spacing:1px;text-transform:uppercase}
-.stat-val{font-size:20px;font-weight:bold;color:#fff;margin-top:2px}
-.factor-row{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #111;font-size:11px}
+.row:active{background:rgba(255,255,255,0.02)}
+.sym{font-weight:700;font-size:13px;color:var(--text);letter-spacing:0.5px}
+.sym-sub{font-size:9px;color:var(--text3);margin-top:1px}
+.price-wrap{text-align:right}
+.price-val{font-size:13px;color:var(--text);font-weight:600}
+.change{font-size:11px;margin-top:1px}
+.up{color:var(--accent)}.down{color:var(--red)}
+/* BADGES */
+.badge{
+  padding:4px 10px;border-radius:6px;
+  font-size:10px;font-weight:700;letter-spacing:1.5px;
+  display:inline-block;
+}
+.bullish{background:rgba(0,229,176,0.1);color:var(--accent);border:1px solid rgba(0,229,176,0.2)}
+.weak_bullish{background:rgba(0,180,120,0.08);color:#00b478;border:1px solid rgba(0,180,120,0.15)}
+.bearish{background:rgba(255,58,92,0.1);color:var(--red);border:1px solid rgba(255,58,92,0.2)}
+.weak_bearish{background:rgba(200,40,70,0.08);color:#c82846;border:1px solid rgba(200,40,70,0.15)}
+.neutral{background:rgba(136,136,170,0.08);color:var(--text2);border:1px solid rgba(136,136,170,0.15)}
+.insufficient_data{background:rgba(68,68,102,0.1);color:var(--text3);border:1px solid rgba(68,68,102,0.2)}
+/* BUTTONS */
+.btn{
+  width:100%;background:var(--bg3);
+  border:1px solid var(--border2);color:var(--accent);
+  padding:11px;border-radius:8px;font-family:inherit;
+  font-size:11px;cursor:pointer;letter-spacing:2px;
+  transition:all 0.2s;font-weight:600;
+}
+.btn:active{transform:scale(0.98)}
+.btn.active{background:var(--accent);color:var(--bg);border-color:var(--accent)}
+.btn.primary{
+  background:linear-gradient(135deg,var(--accent),#00b478);
+  color:var(--bg);border:none;font-weight:700;
+  box-shadow:0 4px 20px rgba(0,229,176,0.2);
+}
+.btn-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
+/* INPUT */
+input{
+  width:100%;background:var(--bg3);
+  border:1px solid var(--border2);color:var(--text);
+  padding:12px 14px;border-radius:8px;font-family:inherit;
+  font-size:14px;margin-bottom:10px;outline:none;
+  transition:border-color 0.2s;
+}
+input:focus{border-color:var(--accent)}
+input::placeholder{color:var(--text3)}
+/* CHIPS */
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
+.chip{
+  background:var(--bg3);border:1px solid var(--border2);
+  border-radius:20px;padding:5px 12px;font-size:11px;
+  cursor:pointer;color:var(--text2);font-family:inherit;
+  transition:all 0.15s;letter-spacing:0.5px;
+}
+.chip:active{border-color:var(--accent);color:var(--accent);background:rgba(0,229,176,0.05)}
+/* STAT GRID */
+.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
+.stat{
+  background:var(--bg3);border:1px solid var(--border);
+  border-radius:8px;padding:10px;
+}
+.stat-label{font-size:9px;color:var(--text3);letter-spacing:2px;text-transform:uppercase}
+.stat-val{font-size:18px;font-weight:700;color:var(--text);margin-top:3px}
+/* FACTOR */
+.factor-row{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:8px 0;border-bottom:1px solid rgba(30,30,46,0.6);font-size:11px;
+}
 .factor-row:last-child{border-bottom:none}
-.factor-name{color:#666}
-.bar-wrap{background:#111;border-radius:4px;height:6px;margin:8px 0;overflow:hidden}
-.bar-fill{height:100%;border-radius:4px;transition:width 0.5s}
-.news-item{padding:10px 0;border-bottom:1px solid #111}
+.factor-name{color:var(--text2)}
+.factor-right{display:flex;align-items:center;gap:8px}
+.factor-val{color:var(--text3);font-size:10px}
+/* PROGRESS BAR */
+.progress-wrap{background:var(--bg3);border-radius:4px;height:4px;margin:10px 0;overflow:hidden}
+.progress-fill{height:100%;border-radius:4px;transition:width 0.8s cubic-bezier(0.4,0,0.2,1)}
+/* NEWS */
+.news-item{
+  padding:12px 0;border-bottom:1px solid rgba(30,30,46,0.6);
+}
 .news-item:last-child{border-bottom:none}
-.news-title{font-size:12px;color:#ccc;line-height:1.4;margin-bottom:4px}
-.news-source{font-size:10px;color:#444}
-.status-row{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid #111;font-size:12px}
+.news-title{font-size:12px;color:var(--text);line-height:1.5;margin-bottom:5px}
+.news-title a{color:var(--text);text-decoration:none}
+.news-title a:active{color:var(--accent)}
+.news-meta{display:flex;gap:8px;align-items:center}
+.news-source{font-size:10px;color:var(--accent);letter-spacing:0.5px}
+.news-date{font-size:10px;color:var(--text3)}
+/* STATUS */
+.status-row{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:8px 0;border-bottom:1px solid rgba(30,30,46,0.6);font-size:12px;
+}
 .status-row:last-child{border-bottom:none}
-.dot{width:6px;height:6px;border-radius:50%;display:inline-block;margin-right:6px}
-.dot.green{background:#00d4aa}.dot.red{background:#ff4466}.dot.yellow{background:#f7b731}
-.fng-num{font-size:40px;font-weight:bold;margin:8px 0 4px}
-.loading{color:#333;font-size:12px;padding:16px 0;text-align:center}
-.error{color:#ff4466;font-size:11px;padding:8px 0}
-.chip{display:inline-block;background:#111;border:1px solid #222;border-radius:20px;padding:4px 10px;font-size:11px;margin:3px;cursor:pointer;color:#888}
-.chip:active{border-color:#00d4aa;color:#00d4aa}
+.status-left{display:flex;align-items:center;gap:8px}
+.dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.dot.green{background:var(--accent);box-shadow:0 0 6px rgba(0,229,176,0.4)}
+.dot.red{background:var(--red);box-shadow:0 0 6px rgba(255,58,92,0.4)}
+.dot.yellow{background:var(--yellow)}
+/* FNG */
+.fng-big{font-size:52px;font-weight:700;line-height:1;margin:8px 0 4px}
+.fng-label{font-size:13px;margin-bottom:12px;letter-spacing:1px}
+.fng-bar-wrap{
+  position:relative;height:8px;border-radius:4px;
+  background:linear-gradient(90deg,var(--red),var(--yellow),var(--accent));
+  margin:10px 0;overflow:visible;
+}
+.fng-marker{
+  position:absolute;top:-4px;width:2px;height:16px;
+  background:#fff;border-radius:2px;
+  box-shadow:0 0 8px rgba(255,255,255,0.6);
+  transform:translateX(-50%);transition:left 0.5s;
+}
+/* SPARKLINE */
+.sparkline{width:100%;height:50px;overflow:visible}
+/* LOADING/ERROR */
+.loading{color:var(--text3);font-size:11px;padding:20px 0;text-align:center;letter-spacing:1px}
+.loading::after{content:'...';animation:dots 1.5s infinite}
+@keyframes dots{0%{content:''}33%{content:'.'}66%{content:'..'}100%{content:'...'}}
+.error{color:var(--red);font-size:11px;padding:8px 0;letter-spacing:0.5px}
+/* DIVIDER */
+.divider{height:1px;background:var(--border);margin:12px 0}
+/* SECTION HEADER */
+.section-hdr{
+  display:flex;justify-content:space-between;align-items:center;
+  margin-bottom:12px;
+}
+.section-hdr-title{font-size:9px;color:var(--text3);letter-spacing:3px;text-transform:uppercase}
+.section-hdr-badge{
+  font-size:9px;color:var(--text3);
+  background:var(--bg3);border:1px solid var(--border);
+  border-radius:10px;padding:2px 8px;letter-spacing:1px;
+}
+/* FORECAST RESULT HEADER */
+.fc-header{
+  display:flex;justify-content:space-between;align-items:flex-start;
+  margin-bottom:14px;padding-bottom:14px;
+  border-bottom:1px solid var(--border);
+}
+.fc-symbol{font-size:24px;font-weight:700;letter-spacing:1px}
+.fc-price{font-size:13px;color:var(--text2);margin-top:3px}
+/* MINI STATS ROW */
+.mini-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:12px}
+.mini-stat{
+  background:var(--bg3);border-radius:6px;padding:8px;text-align:center;
+}
+.mini-stat-label{font-size:8px;color:var(--text3);letter-spacing:1px;text-transform:uppercase}
+.mini-stat-val{font-size:15px;font-weight:700;margin-top:2px}
+/* MARKET OVERVIEW */
+.market-overview{
+  display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;
+}
+.market-stat{
+  background:var(--bg3);border:1px solid var(--border);
+  border-radius:8px;padding:10px;
+}
+.market-stat-label{font-size:9px;color:var(--text3);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:4px}
+.market-stat-val{font-size:16px;font-weight:700}
+/* ACCURACY CARD */
+.acc-row{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid rgba(30,30,46,0.5);font-size:12px}
+.acc-row:last-child{border-bottom:none}
 </style>
 </head>
 <body>
 
-<div class="header">
-  <h1>⚡ MARKET FORECASTER</h1>
-  <div class="live" id="live-dot"></div>
+<div class="hdr">
+  <div class="hdr-left">
+    <span class="hdr-logo">\u26a1</span>
+    <span class="hdr-title">MARKET FORECASTER</span>
+  </div>
+  <div class="hdr-right">
+    <div class="live-badge">
+      <div class="live-dot"></div>
+      LIVE
+    </div>
+    <span class="time-display" id="clock"></span>
+  </div>
 </div>
 
 <div class="nav">
@@ -79,26 +282,34 @@ input:focus{border-color:#00d4aa}
 
 <div class="content">
 
+<!-- PRICES TAB -->
 <div id="prices" class="tab active">
   <div class="card">
-    <div class="card-title">CRYPTO — LIVE</div>
-    <div id="crypto-list"><div class="loading">Fetching prices...</div></div>
+    <div class="section-hdr">
+      <div class="card-title">CRYPTO \u2014 LIVE</div>
+      <div class="section-hdr-badge" id="crypto-updated">\u2013</div>
+    </div>
+    <div id="crypto-list"><div class="loading">Fetching</div></div>
   </div>
   <div class="card">
-    <div class="card-title">STOCKS — LIVE</div>
-    <div id="stock-list"><div class="loading">Fetching prices...</div></div>
+    <div class="section-hdr">
+      <div class="card-title">STOCKS \u2014 LIVE</div>
+      <div class="section-hdr-badge" id="stock-updated">\u2013</div>
+    </div>
+    <div id="stock-list"><div class="loading">Fetching</div></div>
   </div>
 </div>
 
+<!-- FORECAST TAB -->
 <div id="forecast" class="tab">
   <div class="card">
-    <div class="card-title">SELECT ASSET</div>
-    <div class="btn-row" style="margin-bottom:8px">
+    <div class="card-title">SELECT ASSET TYPE</div>
+    <div class="btn-row">
       <button class="btn active" id="btn-crypto" onclick="setType('crypto')">CRYPTO</button>
       <button class="btn" id="btn-stock" onclick="setType('stock')">STOCK</button>
     </div>
-    <input id="sym-input" placeholder="e.g. BTC" oninput="this.value=this.value.toUpperCase()">
-    <div id="quick-chips-crypto">
+    <input id="sym-input" placeholder="e.g. BTC or AAPL" oninput="this.value=this.value.toUpperCase()">
+    <div id="quick-chips-crypto" class="chips">
       <span class="chip" onclick="quickSelect('BTC')">BTC</span>
       <span class="chip" onclick="quickSelect('ETH')">ETH</span>
       <span class="chip" onclick="quickSelect('SOL')">SOL</span>
@@ -108,7 +319,7 @@ input:focus{border-color:#00d4aa}
       <span class="chip" onclick="quickSelect('AVAX')">AVAX</span>
       <span class="chip" onclick="quickSelect('LINK')">LINK</span>
     </div>
-    <div id="quick-chips-stock" style="display:none">
+    <div id="quick-chips-stock" class="chips" style="display:none">
       <span class="chip" onclick="quickSelect('AAPL')">AAPL</span>
       <span class="chip" onclick="quickSelect('MSFT')">MSFT</span>
       <span class="chip" onclick="quickSelect('NVDA')">NVDA</span>
@@ -117,349 +328,238 @@ input:focus{border-color:#00d4aa}
       <span class="chip" onclick="quickSelect('META')">META</span>
       <span class="chip" onclick="quickSelect('SPY')">SPY</span>
       <span class="chip" onclick="quickSelect('QQQ')">QQQ</span>
+      <span class="chip" onclick="quickSelect('JPM')">JPM</span>
+      <span class="chip" onclick="quickSelect('AMZN')">AMZN</span>
     </div>
-    <button class="btn" style="margin-top:8px" onclick="getForecast()">▶ RUN FORECAST</button>
+    <button class="btn primary" onclick="getForecast()">\u25b6 RUN FORECAST</button>
   </div>
   <div id="forecast-result"></div>
 </div>
 
+<!-- NEWS TAB -->
 <div id="news" class="tab">
   <div class="card">
     <div class="card-title">CRYPTO NEWS</div>
-    <div id="news-list"><div class="loading">Loading news...</div></div>
+    <div id="news-list"><div class="loading">Loading</div></div>
   </div>
 </div>
 
+<!-- MACRO TAB -->
 <div id="macro" class="tab">
   <div class="card">
     <div class="card-title">FEAR & GREED INDEX</div>
-    <div id="fng-display"><div class="loading">Loading...</div></div>
+    <div id="fng-display"><div class="loading">Loading</div></div>
   </div>
   <div class="card">
-    <div class="card-title">BTC DOMINANCE</div>
-    <div id="btc-dom"><div class="loading">Loading...</div></div>
+    <div class="card-title">GLOBAL MARKET</div>
+    <div id="global-market"><div class="loading">Loading</div></div>
   </div>
   <div class="card">
-    <div class="card-title">GLOBAL CRYPTO MARKET</div>
-    <div id="global-market"><div class="loading">Loading...</div></div>
+    <div class="card-title">DOMINANCE</div>
+    <div id="dominance"><div class="loading">Loading</div></div>
   </div>
 </div>
 
+<!-- SYSTEM TAB -->
 <div id="system" class="tab">
   <div class="card">
     <div class="card-title">DATA PROVIDERS</div>
-    <div id="provider-status"><div class="loading">Checking...</div></div>
+    <div id="provider-status"><div class="loading">Checking</div></div>
   </div>
   <div class="card">
-    <div class="card-title">FORECAST ACCURACY</div>
-    <div id="accuracy-display">
-      <div class="loading">Accuracy builds up as you use the app</div>
-    </div>
+    <div class="card-title">FORECAST LOG</div>
+    <div id="forecast-log"><div class="loading" style="animation:none">No forecasts yet</div></div>
   </div>
 </div>
 
-</div>
+</div><!-- /content -->
 
 <script>
-const DB_KEY = 'mf_forecasts';
+// \u2500\u2500\u2500 STATE \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+const STORE_KEY = 'mf_v2';
 let assetType = 'crypto';
-let forecasts = JSON.parse(localStorage.getItem(DB_KEY)||'[]');
+let fcLog = JSON.parse(localStorage.getItem(STORE_KEY) || '[]');
+const PROXY = 'https://api.allorigins.win/raw?url=';
 
+// \u2500\u2500\u2500 CLOCK \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+function updateClock() {
+  const now = new Date();
+  document.getElementById('clock').textContent =
+    now.toLocaleTimeString('en-GB', {hour:'2-digit',minute:'2-digit'});
+}
+setInterval(updateClock, 1000);
+updateClock();
+
+// \u2500\u2500\u2500 TAB NAVIGATION \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
 function showTab(name, btn) {
-  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
-  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
   document.getElementById(name).classList.add('active');
   btn.classList.add('active');
-  if(name==='news' && document.getElementById('news-list').innerHTML.includes('loading')) loadNews();
-  if(name==='macro') loadMacro();
-  if(name==='system') loadSystem();
+  if (name === 'news') loadNews();
+  if (name === 'macro') loadMacro();
+  if (name === 'system') loadSystem();
 }
 
 function setType(t) {
   assetType = t;
-  document.getElementById('btn-crypto').className='btn'+(t==='crypto'?' active':'');
-  document.getElementById('btn-stock').className='btn'+(t==='stock'?' active':'');
-  document.getElementById('quick-chips-crypto').style.display=t==='crypto'?'block':'none';
-  document.getElementById('quick-chips-stock').style.display=t==='stock'?'block':'none';
-  document.getElementById('sym-input').placeholder=t==='crypto'?'e.g. BTC':'e.g. AAPL';
-  document.getElementById('sym-input').value='';
+  document.getElementById('btn-crypto').className = 'btn' + (t === 'crypto' ? ' active' : '');
+  document.getElementById('btn-stock').className = 'btn' + (t === 'stock' ? ' active' : '');
+  document.getElementById('quick-chips-crypto').style.display = t === 'crypto' ? 'flex' : 'none';
+  document.getElementById('quick-chips-stock').style.display = t === 'stock' ? 'flex' : 'none';
+  document.getElementById('sym-input').placeholder = t === 'crypto' ? 'e.g. BTC' : 'e.g. AAPL';
+  document.getElementById('sym-input').value = '';
 }
 
 function quickSelect(sym) {
-  document.getElementById('sym-input').value=sym;
+  document.getElementById('sym-input').value = sym;
   getForecast();
 }
 
-function pct(n) {
-  const v=parseFloat(n)||0;
-  return `<span class="${v>=0?'up':'down'}">${v>=0?'+':''}${v.toFixed(2)}%</span>`;
-}
-
-function fmt(n, decimals=2) {
-  const v=parseFloat(n)||0;
-  if(v>1000) return v.toLocaleString(undefined,{maximumFractionDigits:2});
-  if(v>1) return v.toFixed(decimals);
+// \u2500\u2500\u2500 FORMATTERS \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+function fmt(n) {
+  const v = parseFloat(n) || 0;
+  if (v >= 1000) return v.toLocaleString(undefined, {maximumFractionDigits: 2});
+  if (v >= 1) return v.toFixed(2);
+  if (v >= 0.01) return v.toFixed(4);
   return v.toFixed(6);
 }
 
-// CRYPTO PRICES via CoinGecko
+function pct(n) {
+  const v = parseFloat(n) || 0;
+  const cls = v >= 0 ? 'up' : 'down';
+  const sign = v >= 0 ? '+' : '';
+  return `<span class="${cls}">${sign}${v.toFixed(2)}%</span>`;
+}
+
+function timeAgo(ts) {
+  const s = Math.floor((Date.now() - new Date(ts)) / 1000);
+  if (s < 60) return s + 's ago';
+  if (s < 3600) return Math.floor(s/60) + 'm ago';
+  return Math.floor(s/3600) + 'h ago';
+}
+
+// \u2500\u2500\u2500 CRYPTO PRICES \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+const CRYPTO_MAP = {
+  bitcoin:'BTC', ethereum:'ETH', solana:'SOL', binancecoin:'BNB',
+  ripple:'XRP', cardano:'ADA', 'avalanche-2':'AVAX', chainlink:'LINK',
+  polkadot:'DOT', litecoin:'LTC'
+};
+
 async function loadCrypto() {
   try {
-    const ids='bitcoin,ethereum,solana,binancecoin,ripple,cardano,avalanche-2,chainlink,polkadot,litecoin';
-    const r=await fetch(`https://api.coingecko.com/api/v3/simple/price?ids=${ids}&vs_currencies=usd&include_24hr_change=true`);
-    const d=await r.json();
-    const map={bitcoin:'BTC',ethereum:'ETH',solana:'SOL',binancecoin:'BNB',ripple:'XRP',cardano:'ADA','avalanche-2':'AVAX',chainlink:'LINK',polkadot:'DOT',litecoin:'LTC'};
-    const html=Object.entries(map).map(([id,sym])=>{
-      if(!d[id]) return '';
-      const p=d[id].usd, ch=d[id].usd_24h_change;
-      return `<div class="row"><span class="sym">${sym}</span><span class="price-val">$${fmt(p)} ${pct(ch)}</span></div>`;
-    }).join('');
-    document.getElementById('crypto-list').innerHTML=html||'<div class="error">No data</div>';
-  } catch(e) {
-    document.getElementById('crypto-list').innerHTML=`<div class="error">Error: ${e.message}</div>`;
-  }
-}
-
-// STOCK PRICES via Yahoo Finance
-async function loadStocks() {
-  const syms=['AAPL','MSFT','NVDA','TSLA','GOOGL','META','AMZN','JPM','SPY','QQQ'];
-  try {
-    const results=await Promise.allSettled(syms.map(sym=>
-      fetch(`https://query1.finance.yahoo.com/v8/finance/chart/${sym}?interval=1d&range=2d`)
-        .then(r=>r.json())
-        .then(d=>{
-          const meta=d.chart.result[0].meta;
-          const closes=d.chart.result[0].indicators.quote[0].close;
-          const price=meta.regularMarketPrice||closes[closes.length-1];
-          const prev=closes[closes.length-2]||price;
-          const change=((price-prev)/prev)*100;
-          return {sym,price,change};
-        })
-    ));
-    const html=results.map(r=>{
-      if(r.status==='rejected') return '';
-      const {sym,price,change}=r.value;
-      return `<div class="row"><span class="sym">${sym}</span><span class="price-val">$${fmt(price)} ${pct(change)}</span></div>`;
-    }).join('');
-    document.getElementById('stock-list').innerHTML=html||'<div class="error">Market may be closed</div>';
-  } catch(e) {
-    document.getElementById('stock-list').innerHTML=`<div class="error">Error: ${e.message}</div>`;
-  }
-}
-
-// RSI calculation
-function computeRSI(prices, period=14) {
-  if(prices.length<period+1) return 50;
-  let gains=0, losses=0;
-  for(let i=prices.length-period;i<prices.length;i++) {
-    const d=prices[i]-prices[i-1];
-    if(d>0) gains+=d; else losses-=d;
-  }
-  const ag=gains/period, al=losses/period;
-  if(al===0) return 100;
-  return 100-(100/(1+ag/al));
-}
-
-// FORECAST ENGINE
-async function getForecast() {
-  const sym=document.getElementById('sym-input').value.trim();
-  if(!sym){alert('Enter a symbol');return;}
-  document.getElementById('forecast-result').innerHTML='<div class="card"><div class="loading">Computing forecast...</div></div>';
-
-  try {
-    let prices=[], price=0;
-
-    if(assetType==='crypto') {
-      const cgMap={BTC:'bitcoin',ETH:'ethereum',SOL:'solana',BNB:'binancecoin',XRP:'ripple',ADA:'cardano',AVAX:'avalanche-2',LINK:'chainlink',DOT:'polkadot',LTC:'litecoin'};
-      const cgId=cgMap[sym.toUpperCase()];
-      if(!cgId){document.getElementById('forecast-result').innerHTML='<div class="card"><div class="error">Unknown crypto symbol</div></div>';return;}
-      const [chartRes, priceRes]=await Promise.all([
-        fetch(`https://api.coingecko.com/api/v3/coins/${cgId}/market_chart?vs_currency=usd&days=30`).then(r=>r.json()),
-        fetch(`https://api.coingecko.com/api/v3/simple/price?ids=${cgId}&vs_currencies=usd`).then(r=>r.json())
-      ]);
-      prices=chartRes.prices.map(p=>p[1]);
-      price=priceRes[cgId]?.usd||prices[prices.length-1]||0;
-    } else {
-      const r=await fetch(`https://query1.finance.yahoo.com/v8/finance/chart/${sym}?interval=1d&range=30d`);
-      const d=await r.json();
-      if(!d.chart.result){document.getElementById('forecast-result').innerHTML='<div class="card"><div class="error">Symbol not found</div></div>';return;}
-      prices=d.chart.result[0].indicators.quote[0].close.filter(p=>p!=null);
-      price=d.chart.result[0].meta.regularMarketPrice||prices[prices.length-1]||0;
-    }
-
-    if(prices.length<20){
-      document.getElementById('forecast-result').innerHTML='<div class="card"><div class="error">Insufficient price data</div></div>';
-      return;
-    }
-
-    // Signals
-    const rsi=computeRSI(prices);
-    const rsiS=rsi<30?0.4:rsi<45?0.2:rsi>70?-0.4:rsi>55?-0.2:0;
-    const momRaw=(prices[prices.length-1]-prices[prices.length-5])/prices[prices.length-5];
-    const mom=Math.max(-0.4,Math.min(0.4,momRaw*5));
-    const sma20=prices.slice(-20).reduce((a,b)=>a+b,0)/20;
-    const smaS=prices[prices.length-1]>sma20?0.2:-0.2;
-
-    let fngS=0, fngVal=50, fngLabel='Neutral';
-    if(assetType==='crypto') {
-      try {
-        const fg=await fetch('https://api.alternative.me/fng/?limit=1').then(r=>r.json());
-        fngVal=parseInt(fg.data[0].value);
-        fngLabel=fg.data[0].value_classification;
-        fngS=fngVal<25?0.15:fngVal>75?-0.15:0;
-      } catch(e){}
-    }
-
-    const composite=rsiS*0.30+mom*0.35+smaS*0.25+fngS*0.10;
-    let cls=composite>0.08?'bullish':composite>0.03?'weak_bullish':composite<-0.08?'bearish':composite<-0.03?'weak_bearish':'neutral';
-    const conf=Math.min(0.85,0.45+Math.abs(composite)*2);
-
-    // Save to localStorage
-    forecasts.push({sym,assetType,cls,conf,composite,price,time:new Date().toISOString()});
-    if(forecasts.length>100) forecasts=forecasts.slice(-100);
-    localStorage.setItem(DB_KEY,JSON.stringify(forecasts));
-
-    const factors=[
-      {name:'RSI',value:rsi.toFixed(1),signal:rsiS},
-      {name:'Momentum (5d)',value:(momRaw*100).toFixed(2)+'%',signal:mom},
-      {name:'SMA 20',value:'$'+fmt(sma20),signal:smaS},
-      {name:'Fear & Greed',value:assetType==='crypto'?fngVal+' ('+fngLabel+')':'N/A',signal:fngS},
-    ];
-
-    const factorHtml=factors.map(f=>`
-      <div class="factor-row">
-        <span class="factor-name">${f.name}</span>
-        <div style="text-align:right">
-          <span style="color:#555;font-size:10px;margin-right:6px">${f.value}</span>
-          <span class="${f.signal>0?'up':f.signal<0?'down':''}">${f.signal>0?'+':''}${f.signal.toFixed(3)}</span>
+    const ids = Object.keys(CRYPTO_MAP).join(',');
+    const r = await fetch(
+      `https://api.coingecko.com/api/v3/simple/price?ids=${ids}&vs_currencies=usd&include_24hr_change=true`,
+      {signal: AbortSignal.timeout(10000)}
+    );
+    if (!r.ok) throw new Error('CoinGecko error');
+    const d = await r.json();
+    const html = Object.entries(CRYPTO_MAP).map(([id, sym]) => {
+      if (!d[id]) return '';
+      const p = d[id].usd, ch = d[id].usd_24h_change || 0;
+      return `<div class="row">
+        <div><div class="sym">${sym}</div></div>
+        <div class="price-wrap">
+          <div class="price-val">$${fmt(p)}</div>
+          <div class="change">${pct(ch)}</div>
         </div>
-      </div>`).join('');
-
-    document.getElementById('forecast-result').innerHTML=`
-      <div class="card">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
-          <span style="font-size:20px;font-weight:bold">${sym}</span>
-          <span class="badge ${cls}">${cls.replace('_',' ').toUpperCase()}</span>
-        </div>
-        <div class="stat-grid">
-          <div class="stat"><div class="stat-label">PRICE</div><div class="stat-val" style="font-size:16px">$${fmt(price)}</div></div>
-          <div class="stat"><div class="stat-label">CONFIDENCE</div><div class="stat-val">${Math.round(conf*100)}%</div></div>
-          <div class="stat"><div class="stat-label">COMPOSITE</div><div class="stat-val" style="font-size:16px;color:${composite>0?'#00d4aa':'#ff4466'}">${composite>0?'+':''}${composite.toFixed(4)}</div></div>
-          <div class="stat"><div class="stat-label">SIGNALS</div><div class="stat-val">4</div></div>
-        </div>
-        <div class="card-title" style="margin-bottom:6px">SIGNAL BREAKDOWN</div>
-        ${factorHtml}
-        <div class="bar-wrap" style="margin-top:10px">
-          <div class="bar-fill" style="width:${Math.round(conf*100)}%;background:${cls.includes('bull')?'#00d4aa':cls.includes('bear')?'#ff4466':'#888'}"></div>
-        </div>
-        <div style="font-size:10px;color:#333;margin-top:6px">${new Date().toLocaleTimeString()}</div>
       </div>`;
-
+    }).join('');
+    document.getElementById('crypto-list').innerHTML = html || '<div class="error">No data</div>';
+    document.getElementById('crypto-updated').textContent = 'UPDATED ' + new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
   } catch(e) {
-    document.getElementById('forecast-result').innerHTML=`<div class="card"><div class="error">Error: ${e.message}</div></div>`;
+    document.getElementById('crypto-list').innerHTML = `<div class="error">\u26a0 ${e.message}</div>`;
   }
 }
 
-// NEWS via RSS proxy
-async function loadNews() {
-  try {
-    const r=await fetch('https://api.rss2json.com/v1/api.json?rss_url=https://cointelegraph.com/rss&count=20');
-    const d=await r.json();
-    if(d.status!=='ok') throw new Error('RSS failed');
-    const html=d.items.map(item=>`
-      <div class="news-item">
-        <div class="news-title"><a href="${item.link}" target="_blank" style="color:#ccc;text-decoration:none">${item.title}</a></div>
-        <div class="news-source">${item.pubDate?.slice(0,16)||''}</div>
-      </div>`).join('');
-    document.getElementById('news-list').innerHTML=html;
-  } catch(e) {
-    document.getElementById('news-list').innerHTML=`<div class="error">Error loading news: ${e.message}</div>`;
-  }
-}
+// \u2500\u2500\u2500 STOCK PRICES \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+const STOCK_SYMS = ['AAPL','MSFT','NVDA','TSLA','GOOGL','META','AMZN','JPM','SPY','QQQ'];
 
-// MACRO DATA
-async function loadMacro() {
-  // Fear & Greed
-  try {
-    const r=await fetch('https://api.alternative.me/fng/?limit=7');
-    const d=await r.json();
-    const latest=d.data[0];
-    const val=parseInt(latest.value);
-    const color=val<25?'#ff4466':val>75?'#00d4aa':'#f7b731';
-    const history=d.data.reverse();
-    const sparkline=history.map((p,i)=>{
-      const x=(i/(history.length-1))*100;
-      const y=100-parseInt(p.value);
-      return `${i===0?'M':'L'}${x},${y}`;
-    }).join(' ');
-    document.getElementById('fng-display').innerHTML=`
-      <div class="fng-num" style="color:${color}">${val}</div>
-      <div style="color:${color};font-size:13px;margin-bottom:10px">${latest.value_classification}</div>
-      <svg viewBox="0 0 100 100" style="width:100%;height:60px;overflow:visible">
-        <path d="${sparkline}" fill="none" stroke="${color}" stroke-width="2"/>
-      </svg>
-      <div style="font-size:10px;color:#333;margin-top:4px">7-day history</div>`;
-  } catch(e) {
-    document.getElementById('fng-display').innerHTML=`<div class="error">${e.message}</div>`;
-  }
-
-  // Global crypto market
-  try {
-    const r=await fetch('https://api.coingecko.com/api/v3/global');
-    const d=r.ok?await r.json():null;
-    if(d?.data) {
-      const btcDom=d.data.market_cap_percentage?.btc?.toFixed(1)||'N/A';
-      const ethDom=d.data.market_cap_percentage?.eth?.toFixed(1)||'N/A';
-      const mcap=d.data.total_market_cap?.usd;
-      const mcapStr=mcap?(mcap/1e12).toFixed(2)+'T':'N/A';
-      document.getElementById('btc-dom').innerHTML=`
-        <div class="row"><span style="color:#888">BTC Dominance</span><span class="up">${btcDom}%</span></div>
-        <div class="row"><span style="color:#888">ETH Dominance</span><span style="color:#6b8cff">${ethDom}%</span></div>`;
-      document.getElementById('global-market').innerHTML=`
-        <div class="row"><span style="color:#888">Total Market Cap</span><span>$${mcapStr}</span></div>
-        <div class="row"><span style="color:#888">Active Cryptos</span><span>${d.data.active_cryptocurrencies?.toLocaleString()||'N/A'}</span></div>
-        <div class="row"><span style="color:#888">Markets</span><span>${d.data.markets?.toLocaleString()||'N/A'}</span></div>`;
-    }
-  } catch(e) {}
-}
-
-// SYSTEM STATUS
-async function loadSystem() {
-  const providers=[
-    {name:'CoinGecko (Crypto)',url:'https://api.coingecko.com/api/v3/ping'},
-    {name:'Yahoo Finance (Stocks)',url:'https://query1.finance.yahoo.com/v8/finance/chart/AAPL?interval=1d&range=1d'},
-    {name:'Alternative.me (F&G)',url:'https://api.alternative.me/fng/?limit=1'},
-    {name:'RSS2JSON (News)',url:'https://api.rss2json.com/v1/api.json?rss_url=https://cointelegraph.com/rss&count=1'},
+async function fetchStock(sym) {
+  // Try direct first, fall back to proxy
+  const urls = [
+    `https://query2.finance.yahoo.com/v8/finance/chart/${sym}?interval=1d&range=5d`,
+    `${PROXY}${encodeURIComponent(`https://query1.finance.yahoo.com/v8/finance/chart/${sym}?interval=1d&range=5d`)}`
   ];
-  const results=await Promise.allSettled(providers.map(p=>
-    fetch(p.url,{signal:AbortSignal.timeout(5000)}).then(r=>({name:p.name,ok:r.ok}))
-  ));
-  const html=results.map((r,i)=>{
-    const ok=r.status==='fulfilled'&&r.value.ok;
-    return `<div class="status-row">
-      <span><span class="dot ${ok?'green':'red'}"></span>${providers[i].name}</span>
-      <span style="color:${ok?'#00d4aa':'#ff4466'}">${ok?'ONLINE':'OFFLINE'}</span>
-    </div>`;
-  }).join('');
-  document.getElementById('provider-status').innerHTML=html;
+  for (const url of urls) {
+    try {
+      const r = await fetch(url, {signal: AbortSignal.timeout(8000)});
+      const d = await r.json();
+      const result = d?.chart?.result?.[0];
+      if (!result) continue;
+      const closes = result.indicators.quote[0].close.filter(v => v != null);
+      const price = result.meta.regularMarketPrice || closes[closes.length-1];
+      const prev = closes[closes.length-2] || price;
+      const change = prev > 0 ? ((price - prev) / prev) * 100 : 0;
+      return {sym, price, change, ok: true};
+    } catch(e) { continue; }
+  }
+  return {sym, price: 0, change: 0, ok: false};
+}
 
-  // Accuracy from localStorage
-  if(forecasts.length>0) {
-    const crypto=forecasts.filter(f=>f.assetType==='crypto').length;
-    const stock=forecasts.filter(f=>f.assetType==='stock').length;
-    document.getElementById('accuracy-display').innerHTML=`
-      <div class="row"><span style="color:#888">Total Forecasts</span><span>${forecasts.length}</span></div>
-      <div class="row"><span style="color:#888">Crypto</span><span>${crypto}</span></div>
-      <div class="row"><span style="color:#888">Stocks</span><span>${stock}</span></div>
-      <div style="font-size:10px;color:#333;margin-top:8px">Accuracy tracking requires 24h evaluation window</div>`;
+async function loadStocks() {
+  document.getElementById('stock-list').innerHTML = '<div class="loading">Fetching</div>';
+  try {
+    const results = await Promise.all(STOCK_SYMS.map(s => fetchStock(s)));
+    const html = results
+      .filter(r => r.ok && r.price > 0)
+      .map(r => `<div class="row">
+        <div><div class="sym">${r.sym}</div></div>
+        <div class="price-wrap">
+          <div class="price-val">$${fmt(r.price)}</div>
+          <div class="change">${pct(r.change)}</div>
+        </div>
+      </div>`).join('');
+    document.getElementById('stock-list').innerHTML = html ||
+      '<div class="error">Market closed or data unavailable</div>';
+    document.getElementById('stock-updated').textContent = 'UPDATED ' + new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
+  } catch(e) {
+    document.getElementById('stock-list').innerHTML = `<div class="error">\u26a0 ${e.message}</div>`;
   }
 }
 
-// Init
-loadCrypto();
-loadStocks();
-setInterval(loadCrypto,30000);
-setInterval(loadStocks,60000);
-</script>
-</body>
-</html>
+// \u2500\u2500\u2500 RSI \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+function computeRSI(prices, period = 14) {
+  if (prices.length < period + 1) return 50;
+  let gains = 0, losses = 0;
+  const slice = prices.slice(-period - 1);
+  for (let i = 1; i < slice.length; i++) {
+    const d = slice[i] - slice[i-1];
+    if (d > 0) gains += d; else losses -= d;
+  }
+  const ag = gains / period, al = losses / period;
+  if (al === 0) return 100;
+  return 100 - (100 / (1 + ag / al));
+}
+
+// \u2500\u2500\u2500 FORECAST ENGINE \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+async function getForecast() {
+  const sym = document.getElementById('sym-input').value.trim().toUpperCase();
+  if (!sym) { alert('Enter a symbol'); return; }
+
+  document.getElementById('forecast-result').innerHTML =
+    '<div class="card"><div class="loading">Computing forecast</div></div>';
+
+  try {
+    let prices = [], price = 0;
+
+    if (assetType === 'crypto') {
+      const cgMap = {
+        BTC:'bitcoin', ETH:'ethereum', SOL:'solana', BNB:'binancecoin',
+        XRP:'ripple', ADA:'cardano', AVAX:'avalanche-2', LINK:'chainlink',
+        DOT:'polkadot', LTC:'litecoin', DOGE:'dogecoin', MATIC:'matic-network',
+        ATOM:'cosmos', UNI:'uniswap', FIL:'filecoin'
+      };
+      const cgId = cgMap[sym];
+      if (!cgId) {
+        document.getElementById('forecast-result').innerHTML =
+          '<div class="card"><div class="error">\u26a0 Unknown crypto. Try BTC, ETH, SOL, BNB, XRP, ADA, AVAX, LINK, DOT, LTC</div></div>';
+        return;
+      }
+      const [chartRes, priceRes] = await Promise.all([
+        fetch(`https://api.coingecko.com/api/v3/coins/${cgId}/market_chart?vs_currency=usd&days=30`).then(r => r.json()),
+        fetch(`https://api.coingecko.com/api/v3/simple/price?ids=${cgId}&vs_currencies=usd`).then(r => r.json())
+      ]);
+      prices = (chartRes.prices || []).map(p => p[1]);
+      price = priceRes[cgId]?.usd || prices
